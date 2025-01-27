@@ -16,6 +16,7 @@ export default class MyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		
+		// This adds a menu item in the left sidebar
 		
 
 		// This creates an icon in the left ribbon.
