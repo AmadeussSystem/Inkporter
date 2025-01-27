@@ -1,8 +1,32 @@
-/*
-
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
-
-*/
+.digitizer-preview-image {
+    width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 4px;
+    margin: 1rem 0;
+  }
+  
+  .digitizer-button-container {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 1rem;
+  }
+  
+  .digitizer-button-container button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--background-modifier-border);
+    background-color: var(--background-primary);
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .digitizer-button-container button:hover {
+    opacity: 0.8;
+  }
+  
+  .digitizer-button-container button.mod-cta {
+    background-color: var(--interactive-accent);
+    color: var(--text-on-accent);
+  }
