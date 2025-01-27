@@ -1,6 +1,5 @@
 import { Plugin, Notice, MarkdownView, Modal, App } from 'obsidian';
 
-// Use CommonJS require for Jimp compatibility
 const Jimp = require('jimp');
 
 interface ProcessedImage {
@@ -10,14 +9,12 @@ interface ProcessedImage {
 
 export default class FieldNoteDigitizer extends Plugin {
   async onload() {
-    console.log('[FieldNote] Starting plugin initialization');
     this.addCommand({
       id: 'field-note-digitizer',
       name: 'Field Note Digitizer',
       hotkeys: [{ modifiers: ["Mod", "Shift"], key: "v" }],
       callback: async () => {
         try {
-          console.log('[FieldNote] Command triggered');
           const processed = await this.processClipboardContent();
           if (processed) {
             new PreviewModal(this.app, processed, (confirmed) => {
@@ -25,66 +22,61 @@ export default class FieldNoteDigitizer extends Plugin {
             }).open();
           }
         } catch (error) {
-          console.error('[FieldNote] Command error:', error);
-          new Notice(`Digitization Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          new Notice(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
     });
   }
 
   private async processClipboardContent(): Promise<ProcessedImage | null> {
-    console.log('[FieldNote] Processing clipboard');
     try {
       const clipboardItems = await navigator.clipboard.read();
-      console.log(`[FieldNote] Found ${clipboardItems.length} clipboard items`);
-
       for (const item of clipboardItems) {
         for (const type of item.types) {
           if (type.startsWith('image/')) {
-            console.log('[FieldNote] Found image:', type);
             const blob = await item.getType(type);
             return this.processImage(await blob.arrayBuffer());
           }
         }
       }
-      throw new Error('No image in clipboard');
+      throw new Error('No image found in clipboard');
     } catch (error) {
-      console.error('[FieldNote] Clipboard error:', error);
       throw new Error(`Clipboard error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   private async processImage(buffer: ArrayBuffer): Promise<ProcessedImage> {
-    console.log('[FieldNote] Processing image');
     try {
       const image = await new Promise<any>((resolve, reject) => {
         new Jimp(Buffer.from(buffer), (err: Error | null, img: any) => {
-          if (err) reject(err);
-          else resolve(img);
+          err ? reject(err) : resolve(img);
         });
       });
 
-      image.grayscale();
-
-      image.scan(0, 0, image.bitmap.width, image.bitmap.height, 
+      image.scan(0, 0, image.bitmap.width, image.bitmap.height,
         (x: number, y: number, idx: number) => {
-          const brightness = image.bitmap.data[idx];
-          const alpha = brightness > 200 ? 0 : 255;
-          image.bitmap.data[idx] = 255;     // R
-          image.bitmap.data[idx + 1] = 255; // G
-          image.bitmap.data[idx + 2] = 255; // B
-          image.bitmap.data[idx + 3] = alpha; // A
+          // Calculate luminance-preserved grayscale
+          const r = image.bitmap.data[idx];
+          const g = image.bitmap.data[idx + 1];
+          const b = image.bitmap.data[idx + 2];
+          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+
+          // Apply inverse threshold at 200 for alpha channel
+          const alpha = gray <= 200 ? 255 : 0;
+
+          // Preserve original color values
+          image.bitmap.data[idx] = r;
+          image.bitmap.data[idx + 1] = g;
+          image.bitmap.data[idx + 2] = b;
+          image.bitmap.data[idx + 3] = alpha;
         });
 
-      const pngBuffer = await image.getBufferAsync('image/png');
-      const arrayBuffer = new Uint8Array(pngBuffer).buffer;
-
+      const pngBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
       return {
-        buffer: arrayBuffer,
+        buffer: new Uint8Array(pngBuffer).buffer,
         fileName: `field-note-${Date.now()}.png`
       };
     } catch (error) {
-      console.error('[FieldNote] Image processing error:', error);
       throw new Error(`Image processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -120,15 +112,20 @@ class PreviewModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.createEl('h2', { text: 'Preview Digitized Note' });
+    contentEl.createEl('h2', { text: 'Preview Processed Image' });
 
     this.objectUrl = URL.createObjectURL(new Blob([this.image.buffer]));
-    const img = contentEl.createEl('img', {
-      attr: { src: this.objectUrl, style: 'max-width: 100%;' }
+    contentEl.createEl('img', {
+      attr: {
+        src: this.objectUrl,
+        class: 'digitizer-preview-image'
+      }
     });
-    
-    const buttons = contentEl.createDiv({ cls: 'modal-button-container' });
-    
+
+    const buttons = contentEl.createDiv({ 
+      cls: 'digitizer-button-container'
+    });
+
     const insertBtn = buttons.createEl('button', {
       text: 'Insert',
       cls: 'mod-cta'
@@ -138,7 +135,9 @@ class PreviewModal extends Modal {
       this.close();
     });
 
-    const cancelBtn = buttons.createEl('button', { text: 'Cancel' });
+    const cancelBtn = buttons.createEl('button', {
+      text: 'Cancel'
+    });
     cancelBtn.addEventListener('click', () => {
       this.callback(false);
       this.close();
