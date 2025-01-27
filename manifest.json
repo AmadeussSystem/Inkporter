@@ -2,6 +2,8 @@
 	"id": "field-note-digitizer",
 	"name": "Field Note Digitizer",
 	"version": "1.0.0",
+	"css": "styles.css",
+	
 	"minAppVersion": "0.15.0",
 	"description": "Demonstrates some of the capabilities of the Obsidian API.",
 	"author": "Ayush Kumar Saroj",

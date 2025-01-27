@@ -112,30 +112,38 @@ class PreviewModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.createEl('h2', { text: 'Preview Processed Image' });
+    contentEl.addClass('fieldnote-digitizer-modal'); // Add modal container class
 
+    // Create title
+    contentEl.createEl('h2', { 
+      text: 'Preview Processed Image',
+      cls: 'modal-title' // Use Obsidian's built-in modal title class
+    });
+
+    // Create image preview
     this.objectUrl = URL.createObjectURL(new Blob([this.image.buffer]));
     contentEl.createEl('img', {
-      attr: {
-        src: this.objectUrl,
-        class: 'digitizer-preview-image'
-      }
+      cls: 'digitizer-preview-image', // Apply your custom image class
+      attr: { src: this.objectUrl }
     });
 
-    const buttons = contentEl.createDiv({ 
-      cls: 'digitizer-button-container'
+    // Create button container
+    const buttonContainer = contentEl.createDiv({ 
+      cls: 'digitizer-button-container' // Apply your button container class
     });
 
-    const insertBtn = buttons.createEl('button', {
+    // Create Insert button
+    const insertBtn = buttonContainer.createEl('button', {
       text: 'Insert',
-      cls: 'mod-cta'
+      cls: 'mod-cta' // Use Obsidian's mod-cta class for primary action
     });
     insertBtn.addEventListener('click', () => {
       this.callback(true);
       this.close();
     });
 
-    const cancelBtn = buttons.createEl('button', {
+    // Create Cancel button
+    const cancelBtn = buttonContainer.createEl('button', {
       text: 'Cancel'
     });
     cancelBtn.addEventListener('click', () => {
