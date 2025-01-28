@@ -6,10 +6,11 @@
 ## Why Inkporter?
 Tired of manually processing notebook scans? This plugin automates the workflow from this  while adding powerful Obsidian integration:
 
-<div style="text-align: center;">
-  [![Digitizing Field Notes inside Obsidian [Showcase]](https://img.youtube.com/vi/9T9VL8_i1Tg/maxresdefault.jpg)](https://www.youtube.com/watch?v=9T9VL8_i1Tg)
-</div>
-
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=9T9VL8_i1Tg">
+    <img src="https://img.youtube.com/vi/9T9VL8_i1Tg/maxresdefault.jpg" alt="BEST of BOTH Worlds? Digitizing Field Notes inside Obsidian [Showcase]" />
+  </a>
+</p>
 
 
 | Manual Process          | Inkporter Automation         |
