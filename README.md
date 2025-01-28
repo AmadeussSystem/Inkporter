@@ -124,7 +124,7 @@ While fully functional, you might encounter:
 - Multi-ink color detection 🔍
 - Adaptive lighting compensation 💡
 
-[Follow development progress →](https://github.com/AmadeussSystem/inkporter/milestones)
+[Follow development progress →](milestones.md)
 
 </div>
 
