@@ -151,7 +151,7 @@ export default class Inkporter extends Plugin {
 
       const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
       if (activeView) {
-        activeView.editor.replaceSelection(`![[${filePath}]]`);
+        activeView.editor.replaceSelection(`![[/${filePath}]]`);
       }
     } catch (error) {
       this.handleError(error);
