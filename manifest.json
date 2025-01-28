@@ -1,10 +1,10 @@
 {
-	"id": "field-note-digitizer",
-	"name": "Field Note Digitizer",
+	"id": "Inkporter",
+	"name": "Inkporter",
 	"version": "1.0.0",
 	"css": "styles.css",
 	"minAppVersion": "0.15.0",
-	"description": "Matches the ScreenShot  With the Custom NoteBook Theme like  wha",
+	"description": "Matches the ScreenShot With the Custom NoteBook Theme like  wha..",
 	"author": "Ayush Kumar Saroj",
 	"isDesktopOnly": false,
 	"authorUrl": "https://obsidian.md",

@@ -1,10 +1,10 @@
 /* styles.css */
-.fieldnote-digitizer-modal {
+.Inkporter-modal {
     padding: 20px;
     max-width: 90vw;
   }
   
-  .digitizer-preview-image {
+  .Inkporter-preview-image {
     border: 1px solid var(--background-modifier-border);
     border-radius: 4px;
     margin: 20px 0;
@@ -16,7 +16,7 @@
     object-fit: contain;
   }
   
-  .digitizer-button-container {
+  .Inkporter-button-container {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
@@ -24,13 +24,13 @@
   }
   
   /* Add theme-adaptive colors */
-  .fieldnote-digitizer-modal h2 {
+  .Inkporter-modal h2 {
     color: var(--text-normal);
     margin-bottom: 15px;
   }
   
   /* Loading spinner for processing state */
-  .digitizer-loading-spinner {
+  .Inkporter-loading-spinner {
     animation: rotate 1.4s linear infinite;
     width: 24px;
     height: 24px;

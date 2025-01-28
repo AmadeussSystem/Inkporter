@@ -5,7 +5,7 @@ interface ProcessedImage {
   fileName: string;
 }
 
-interface FieldNoteDigitizerSettings {
+interface InkporterSettings {
   outputDirectory: string;
   alphaThreshold: number;
   fileNameTemplate: string;
@@ -13,7 +13,7 @@ interface FieldNoteDigitizerSettings {
   useLuminosityForAlpha: boolean;
 }
 
-const DEFAULT_SETTINGS: FieldNoteDigitizerSettings = {
+const DEFAULT_SETTINGS: InkporterSettings = {
   outputDirectory: 'FieldNotes',
   alphaThreshold: 200,
   fileNameTemplate: 'field-note-{date}-{shortId}',
@@ -21,15 +21,15 @@ const DEFAULT_SETTINGS: FieldNoteDigitizerSettings = {
   useLuminosityForAlpha: true
 };
 
-export default class FieldNoteDigitizer extends Plugin {
-  settings: FieldNoteDigitizerSettings;
+export default class Inkporter extends Plugin {
+  settings:InkporterSettings;
 
   async onload() {
     await this.loadSettings();
     
     this.addCommand({
-      id: 'field-note-digitizer',
-      name: 'Field Note Digitizer',
+      id: 'Inkporter',
+      name: 'Inkporter',
       hotkeys: [{ modifiers: ["Mod", "Shift"], key: "v" }],
       callback: async () => {
         try {
@@ -45,7 +45,7 @@ export default class FieldNoteDigitizer extends Plugin {
       }
     });
 
-    this.addSettingTab(new FieldNoteDigitizerSettingsTab(this.app, this));
+    this.addSettingTab(new InkporterSettingsTab(this.app, this));
   }
 
   private async processClipboardContent(): Promise<ProcessedImage | null> {
@@ -160,7 +160,7 @@ export default class FieldNoteDigitizer extends Plugin {
 
   private handleError(error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error occurred';
-    new Notice(`Field Note Digitizer Error: ${message}`);
+    new Notice(`Inkporter Error: ${message}`);
     console.error(error);
   }
 
@@ -187,14 +187,14 @@ class PreviewModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass('fieldnote-digitizer-modal');
+    contentEl.addClass('Inkporter-modal');
 
     contentEl.createEl('h2', { text: 'Preview Processed Image' });
 
     this.objectUrl = URL.createObjectURL(new Blob([this.image.buffer]));
     const img = contentEl.createEl('img', {
       attr: { src: this.objectUrl, alt: 'Processed image preview' },
-      cls: 'digitizer-preview-image'
+      cls: 'Inkporter-preview-image'
     });
     
     img.style.maxWidth = '100%';
@@ -221,10 +221,10 @@ class PreviewModal extends Modal {
   }
 }
 
-class FieldNoteDigitizerSettingsTab extends PluginSettingTab {
-  plugin: FieldNoteDigitizer;
+class InkporterSettingsTab extends PluginSettingTab {
+  plugin: Inkporter;
 
-  constructor(app: App, plugin: FieldNoteDigitizer) {
+  constructor(app: App, plugin: Inkporter) {
     super(app, plugin);
     this.plugin = plugin;
   }
