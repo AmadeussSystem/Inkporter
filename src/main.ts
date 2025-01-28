@@ -28,7 +28,7 @@ export default class Inkporter extends Plugin {
     await this.loadSettings();
     
     this.addCommand({
-      id: 'Inkporter',
+      id: 'inkporter',
       name: 'Inkporter',
       hotkeys: [{ modifiers: ["Mod", "Shift"], key: "v" }],
       callback: async () => {
