@@ -47,7 +47,7 @@ Tired of manually processing notebook scans? This plugin automates the workflow 
 ### 🌈 Dynamic Theming
 ```css
 /* Apply to note CSS classes */
-.inkporter-scan {
+.inkporter-scan { /* class already exists just use it in cssclasses */
   --ink-color: var(--text-normal);
   --paper-color: var(--background-primary);
   filter: contrast(120%);
@@ -157,7 +157,7 @@ Represents "carrying ink into digital" while sounding like a professional tool.
 
 ## 🛣️ Support
 Found a bug? Have feature ideas?  
-📧 [your@email.com](mailto:amadeussystem04@gmail.com)  
+📧 [My Email](mailto:amadeussystem04@gmail.com)  
 🔍 [GitHub Issues](https://github.com/AmadeussSystem/inkporter/issues)  
 💬 [Discord ID](https://discordapp.com/users/1100777573002264637)
 
