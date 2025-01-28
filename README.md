@@ -73,7 +73,7 @@ filename_template: "note-{date}-{shortId}"
 3. **Insert** → Automatically saved to vault
 4. **Style** → Apply CSS classes for theming
 
-![Workflow Demo](demo.mp4)
+![Workflow Demo](demo.gif)
 
 ---
 
