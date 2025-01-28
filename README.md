@@ -4,7 +4,7 @@
 ---
 
 ## Why Inkporter?
-Tired of manually processing notebook scans? This plugin automates the workflow from [your video](https://youtube.com/yourvideo) while adding powerful Obsidian integration:
+Tired of manually processing notebook scans? This plugin automates the workflow from ![your video](www.youtube.com/watch?v=9T9VL8_i1Tg) while adding powerful Obsidian integration:
 
 | Manual Process          | Inkporter Automation         |
 |-------------------------|------------------------------|
@@ -117,7 +117,7 @@ While fully functional, you might encounter:
 - Multi-ink color detection 🔍
 - Adaptive lighting compensation 💡
 
-[Follow development progress →](https://github.com/yourusername/inkporter/milestones)
+[Follow development progress →](https://github.com/AmadeussSystem/inkporter/milestones)
 
 </div>
 
@@ -150,9 +150,9 @@ Represents "carrying ink into digital" while sounding like a professional tool.
 
 ## 🛣️ Support
 Found a bug? Have feature ideas?  
-📧 [your@email.com](mailto:your@email.com)  
-🔍 [GitHub Issues](https://github.com/yourusername/inkporter/issues)  
-💬 [Discord Server](https://discord.gg/yourinvite)
+📧 [your@email.com](mailto:amadeussystem04@gmail.com)  
+🔍 [GitHub Issues](https://github.com/AmadeussSystem/inkporter/issues)  
+💬 [Discord ID](https://discordapp.com/users/1100777573002264637)
 
 ---
 
