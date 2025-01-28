@@ -1,5 +1,3 @@
----
-
 # Inkporter Milestones 🛠️✨  
 
 **Tracking progress towards making Inkporter the ultimate note-digitizing tool for Obsidian!**
