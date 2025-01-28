@@ -15,7 +15,7 @@ interface InkporterSettings {
 
 const DEFAULT_SETTINGS: InkporterSettings = {
   outputDirectory: 'FieldNotes',
-  alphaThreshold: 200,
+  alphaThreshold: 180,
   fileNameTemplate: 'field-note-{date}-{shortId}',
   convertToGrayscale: false,
   useLuminosityForAlpha: true
