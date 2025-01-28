@@ -1,0 +1,43 @@
+/* styles.css */
+.fieldnote-digitizer-modal {
+    padding: 20px;
+    max-width: 90vw;
+  }
+  
+  .digitizer-preview-image {
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 4px;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px var(--background-modifier-box-shadow);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-height: 70vh;
+    object-fit: contain;
+  }
+  
+  .digitizer-button-container {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 15px;
+  }
+  
+  /* Add theme-adaptive colors */
+  .fieldnote-digitizer-modal h2 {
+    color: var(--text-normal);
+    margin-bottom: 15px;
+  }
+  
+  /* Loading spinner for processing state */
+  .digitizer-loading-spinner {
+    animation: rotate 1.4s linear infinite;
+    width: 24px;
+    height: 24px;
+    margin: 20px auto;
+  }
+  
+  @keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }

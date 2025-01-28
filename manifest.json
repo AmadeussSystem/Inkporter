@@ -3,11 +3,15 @@
 	"name": "Field Note Digitizer",
 	"version": "1.0.0",
 	"css": "styles.css",
-	
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
+	"description": "Matches the ScreenShot  With the Custom NoteBook Theme like  wha",
 	"author": "Ayush Kumar Saroj",
+	"isDesktopOnly": false,
 	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"fundingUrl": {
+		"Github Sponsor": "https://github.com/sponsors/AmadeussSystem",
+		"Buy me a Coffee": "https://buymeacoffee.com/amadeussystem",
+		"Paypal": "https://paypal.me/amadeussystem"
+	  },
+	  "donation": "https://buymeacoffee.com/amadeussystem"
 }

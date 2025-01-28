@@ -1,94 +1,161 @@
-# Obsidian Sample Plugin
+# Inkporter 📝➡️📓  
+**Seamlessly digitize handwritten notes into Obsidian with smart ink isolation and adaptive theming**
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+---
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## Why Inkporter?
+Tired of manually processing notebook scans? This plugin automates the workflow from [your video](https://youtube.com/yourvideo) while adding powerful Obsidian integration:
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+| Manual Process          | Inkporter Automation         |
+|-------------------------|------------------------------|
+| 20min/page in Photoshop | Instant clipboard processing |
+| Manual CSS theming      | Auto-adaptive ink colors     |
+| Static file naming      | Smart filename templates     |
+| No OCR integration      | Optional text extraction     |
 
-## First time developing plugins?
+---
 
-Quick starting guide for new plugin devs:
+## 🚀 Installation
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+### Via Obsidian
+1. **Settings** → **Community plugins** → **Browse**
+2. Search "Inkporter" → Install
 
-## Releasing new releases
+### Manual
+1. Download the latest release.
+2. Copy to `vault/.obsidian/plugins`.
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+---
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+## 🔧 Key Features
 
-## Adding your plugin to the community plugin list
+### ✂️ Intelligent Ink Isolation
+![Alpha Threshold Demo](https://example.com/alpha-demo.gif)  
+- Real-time preview of processed images
+- Dual threshold modes:
+  - **Luminosity mode** (perceptual brightness)
+  - **Simple RGB average**
+- Grayscale conversion option
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
-
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
+### 🌈 Dynamic Theming
+```css
+/* Apply to note CSS classes */
+.inkporter-scan {
+  --ink-color: var(--text-normal);
+  --paper-color: var(--background-primary);
+  filter: contrast(120%);
 }
 ```
 
-If you have multiple URLs, you can also do:
+### 📂 Smart Asset Management
+```yaml
+# File naming templates
+filename_template: "note-{date}-{shortId}"
+# Supported variables:
+# - {date}: YYYYMMDD
+# - {timestamp}: epoch ms
+# - {shortId}: 8char hash
+# - {uuid}: v4 UUID
+```
 
-```json
+---
+
+## 📎 Usage Workflow
+1. **Scan** → Import via clipboard (`Ctrl/Cmd+Shift+V`)
+2. **Preview** → Adjust settings in real-time
+3. **Insert** → Automatically saved to vault
+4. **Style** → Apply CSS classes for theming
+
+![Workflow Demo](https://example.com/workflow-screencast.gif)
+
+---
+
+## ⚙️ Configuration
+```javascript
+// Settings structure
 {
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
+  outputDirectory: "InkporterScans", // Save location
+  alphaThreshold: 200,              // 0-255 darkness cutoff
+  fileNameTemplate: "note-{date}-{shortId}",
+  convertToGrayscale: false,        // B/W conversion
+  useLuminosityForAlpha: true       // Perceptual vs simple
 }
 ```
 
-## API Documentation
+---
 
-See https://github.com/obsidianmd/obsidian-api
+## 🌐 Compatibility
+| Environment  | Support          |
+|--------------|------------------|
+| Obsidian     | v1.4+            |
+| OS           | Win/Mac/Linux    |
+| Mobile       | iOS/Android*     |
+| Scanners     | Any clipboard    |
+
+*Mobile requires clipboard permission.
+
+---
+
+## 🚧 Work-in-Progress Notice 📝
+
+<div class="warning" style="padding: 15px; background: #fff3cd; border-radius: 5px; border-left: 5px solid #ffc107; margin: 20px 0;">
+
+⚠️ **Heads Up!** This plugin is currently in **beta development**.  
+While fully functional, you might encounter:
+
+- Occasional edge cases with low-contrast scans
+- Limited support for colored inks (best with **black/dark pens**)
+- Slight variations in ink detection accuracy
+
+**Optimal Results When:**
+- 📜 Using **light-colored paper** (white/cream)
+- ✍️ Writing with **high-contrast ink** (black/dark blue)
+- 💡 Scanning in **bright, even lighting**
+
+*Why?* The alpha threshold detection works best with clear light/dark separation. We're working on:
+- Dark background support 🎨
+- Multi-ink color detection 🔍
+- Adaptive lighting compensation 💡
+
+[Follow development progress →](https://github.com/yourusername/inkporter/milestones)
+
+</div>
+
+---
+
+## 🤝 Contributing
+Help improve:
+- Mobile scanning UX
+- Multi-ink detection
+- Batch processing
+
+See our [contribution guidelines](CONTRIBUTING.md).
+
+---
+
+## 📜 License  
+MIT License - See [LICENSE](LICENSE).
+
+---
+
+## 💡 Why This Name?
+**Inkporter** combines:
+- **Ink** (handwritten notes)
+- **Port** (transfer/carry)
+- **-er** (active tool suffix)
+
+Represents "carrying ink into digital" while sounding like a professional tool.
+
+---
+
+## 🛣️ Support
+Found a bug? Have feature ideas?  
+📧 [your@email.com](mailto:your@email.com)  
+🔍 [GitHub Issues](https://github.com/yourusername/inkporter/issues)  
+💬 [Discord Server](https://discord.gg/yourinvite)
+
+---
+
+> **From the Developer**  
+> "This plugin was born from 47 hours spent cleaning up scans of my Moleskine notebooks. What started as a simple threshold script became an obsession with perfectly bridging analog and digital note-taking. May your handwritten wisdom live forever in both paper and pixels!" - Ayush
+
