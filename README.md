@@ -4,7 +4,7 @@
 ---
 
 ## Why Inkporter?
-Tired of manually processing notebook scans? This plugin automates the workflow from this  while adding powerful Obsidian integration:
+Tired of manually processing notebook scans? This plugin automates the workflow from this  while adding powerful Obsidian integration: Please Watch this video to understand the motivation behind the plugin. Go Sub this Guy his works really somethink to see
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=9T9VL8_i1Tg">
