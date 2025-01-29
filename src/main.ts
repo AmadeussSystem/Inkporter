@@ -29,8 +29,7 @@ export default class Inkporter extends Plugin {
     
     this.addCommand({
       id: 'inkporter',
-      name: 'Inkporter',
-      hotkeys: [{ modifiers: ["Mod", "Shift"], key: "v" }],
+      name: 'Process Image from Clipboard',
       callback: async () => {
         try {
           const processed = await this.processClipboardContent();
@@ -197,8 +196,6 @@ class PreviewModal extends Modal {
       cls: 'Inkporter-preview-image'
     });
     
-    img.style.maxWidth = '100%';
-    img.style.height = 'auto';
 
     new Setting(contentEl)
       .addButton(btn => btn
