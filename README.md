@@ -81,7 +81,7 @@ filename_template: "note-{date}-{shortId}"
 // Settings structure
 {
   outputDirectory: "InkporterScans", // Save location
-  alphaThreshold: 200,              // 0-255 darkness cutoff
+  alphaThreshold: 180,              // 0-255 darkness cutoff
   fileNameTemplate: "note-{date}-{shortId}",
   convertToGrayscale: false,        // B/W conversion
   useLuminosityForAlpha: true       // Perceptual vs simple
