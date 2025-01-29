@@ -22,7 +22,7 @@ const DEFAULT_SETTINGS: InkporterSettings = {
 };
 
 export default class Inkporter extends Plugin {
-  settings:InkporterSettings;
+  settings: InkporterSettings;
 
   async onload() {
     await this.loadSettings();
@@ -53,14 +53,19 @@ export default class Inkporter extends Plugin {
       for (const item of clipboardItems) {
         for (const type of item.types) {
           if (type.startsWith('image/')) {
-            const blob = await item.getType(type);
-            return this.processImage(await blob.arrayBuffer());
+            try {
+              const blob = await item.getType(type);
+              return await this.processImage(await blob.arrayBuffer());
+            } catch (error) {
+              console.warn(`Failed to process image of type ${type}:`, error);
+              continue;
+            }
           }
         }
       }
       throw new Error('No image found in clipboard');
     } catch (error) {
-      if (error instanceof DOMException && error.name === 'NotAllowedError') {
+      if (error instanceof DOMException && (error.name === 'NotAllowedError' || error.name === 'SecurityError')) {
         new Notice('Clipboard access denied. Please enable clipboard permissions.');
       } else {
         this.handleError(error);
@@ -73,6 +78,7 @@ export default class Inkporter extends Plugin {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
+        URL.revokeObjectURL(img.src);
         const canvas = document.createElement('canvas');
         canvas.width = img.width;
         canvas.height = img.height;
@@ -118,7 +124,10 @@ export default class Inkporter extends Plugin {
         : (r + g + b) / 3;
 
       if (this.settings.convertToGrayscale) {
-        data[i] = data[i + 1] = data[i + 2] = brightness;
+        const grayValue = Math.round(brightness);
+        data[i] = grayValue;
+        data[i + 1] = grayValue;
+        data[i + 2] = grayValue;
       }
 
       data[i + 3] = brightness <= this.settings.alphaThreshold ? 255 : 0;
@@ -128,19 +137,19 @@ export default class Inkporter extends Plugin {
   private generateFileName(): string {
     const now = new Date();
     const dateString = now.toISOString().slice(0, 10).replace(/-/g, '');
-    const shortId = self.crypto.randomUUID().slice(0, 8);
+    const shortId = crypto.randomUUID().slice(0, 8);
 
     return this.settings.fileNameTemplate
       .replace('{timestamp}', Date.now().toString())
       .replace('{date}', dateString)
       .replace('{shortId}', shortId)
-      .replace('{uuid}', self.crypto.randomUUID());
+      .replace('{uuid}', crypto.randomUUID());
   }
 
   private async saveAndInsertImage(image: ProcessedImage) {
     try {
       const outputDir = normalizePath(this.settings.outputDirectory);
-      const filePath = `${outputDir}/${image.fileName}.png`;
+      const filePath = normalizePath(`${outputDir}/${image.fileName}.png`);
 
       if (!await this.app.vault.adapter.exists(outputDir)) {
         await this.app.vault.createFolder(outputDir);
@@ -150,7 +159,7 @@ export default class Inkporter extends Plugin {
 
       const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
       if (activeView) {
-        activeView.editor.replaceSelection(`![[/${filePath}]]`);
+        activeView.editor.replaceSelection(`![[${filePath}]]`);
       }
     } catch (error) {
       this.handleError(error);
@@ -164,7 +173,8 @@ export default class Inkporter extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    const storedSettings = await this.loadData();
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, storedSettings || {});
   }
 
   async saveSettings() {
@@ -190,12 +200,16 @@ class PreviewModal extends Modal {
 
     contentEl.createEl('h2', { text: 'Preview Processed Image' });
 
+    if (!this.image.buffer || this.image.buffer.byteLength === 0) {
+      contentEl.createEl('p', { text: 'Error: Unable to load preview.' });
+      return;
+    }
+
     this.objectUrl = URL.createObjectURL(new Blob([this.image.buffer]));
     const img = contentEl.createEl('img', {
       attr: { src: this.objectUrl, alt: 'Processed image preview' },
       cls: 'Inkporter-preview-image'
     });
-    
 
     new Setting(contentEl)
       .addButton(btn => btn
