@@ -36,8 +36,7 @@ Tired of manually processing notebook scans? This plugin automates the workflow 
 
 ## 🔧 Key Features
 
-### ✂️ Intelligent Ink Isolation
-![Alpha Threshold Demo](https://example.com/alpha-demo.gif)  
+### ✂️ Intelligent Ink Isolation 
 - Real-time preview of processed images
 - Dual threshold modes:
   - **Luminosity mode** (perceptual brightness)
