@@ -29,7 +29,7 @@ export default class Inkporter extends Plugin {
     
     this.addCommand({
       id: 'inkporter',
-      name: 'Process Image from Clipboard',
+      name: 'Process image from clipboard',
       callback: async () => {
         try {
           const processed = await this.processClipboardContent();
@@ -198,7 +198,7 @@ class PreviewModal extends Modal {
     contentEl.empty();
     contentEl.addClass('Inkporter-modal');
 
-    contentEl.createEl('h2', { text: 'Preview Processed Image' });
+    contentEl.createEl('h2', { text: 'Preview processed image' });
 
     if (!this.image.buffer || this.image.buffer.byteLength === 0) {
       contentEl.createEl('p', { text: 'Error: Unable to load preview.' });

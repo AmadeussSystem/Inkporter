@@ -2,9 +2,8 @@
 	"id": "inkporter",
 	"name": "Inkporter",
 	"version": "1.0.0",
-	"css": "styles.css",
 	"minAppVersion": "0.15.0",
-	"description": "Inkporter is a plugin that seamlessly digitizes handwritten notes with intelligent ink isolation, adaptive theming, and automated workflows.",
+	"description": "digitize handwritten notes with intelligent ink isolation, adaptive theming, and automated workflows.",
 	"author": "Ayush Kumar Saroj",
 	"isDesktopOnly": false,
 	"authorUrl": "https://github.com/AmadeussSystem",
@@ -12,6 +11,5 @@
 		"Github Sponsor": "https://github.com/sponsors/AmadeussSystem",
 		"Buy me a Coffee": "https://buymeacoffee.com/amadeussystem",
 		"Paypal": "https://paypal.me/amadeussystem"
-	  },
-	  "donation": "https://buymeacoffee.com/amadeussystem"
+	  }
 }
