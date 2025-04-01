@@ -18,7 +18,6 @@ Tired of manually processing notebook scans? This plugin automates the workflow 
 | 20min/page in Photoshop | Instant clipboard processing |
 | Manual CSS theming      | Auto-adaptive ink colors     |
 | Static file naming      | Smart filename templates     |
-| No OCR integration      | Optional text extraction     |
 
 ---
 
@@ -67,7 +66,7 @@ filename_template: "note-{date}-{shortId}"
 ---
 
 ## 📎 Usage Workflow
-1. **Scan** → Import via clipboard (`Ctrl/Cmd+Shift+V`)
+1. **Scan** → Import via clipboard (`Ctrl/Cmd+Shift+V) // Need to manually Keybind this.
 2. **Preview** → Adjust settings in real-time
 3. **Insert** → Automatically saved to vault
 4. **Style** → Apply CSS classes for theming
@@ -98,21 +97,8 @@ filename_template: "note-{date}-{shortId}"
 | Mobile       | iOS/Android*     |
 | Scanners     | Any clipboard    |
 
-*Mobile requires clipboard permission.
 
 ---
-
-## 🚧 Work-in-Progress Notice 📝
-
-<div class="warning" style="padding: 15px; background: #fff3cd; border-radius: 5px; border-left: 5px solid #ffc107; margin: 20px 0;">
-
-⚠️ **Heads Up!** This plugin is currently in **beta development**.  
-While fully functional, you might encounter:
-
-- Occasional edge cases with low-contrast scans
-- Limited support for colored inks (best with **black/dark pens**)
-- Slight variations in ink detection accuracy
-
 **Optimal Results When:**
 - 📜 Using **light-colored paper** (white/cream)
 - ✍️ Writing with **high-contrast ink** (black/dark blue)

@@ -1,7 +1,7 @@
 {
 	"id": "inkporter",
 	"name": "Inkporter",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "digitize handwritten notes with intelligent ink isolation, adaptive theming, and automated workflows.",
 	"author": "Ayush Kumar Saroj",
