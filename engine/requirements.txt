@@ -1,0 +1,7 @@
+numpy>=1.21.0
+opencv-python>=4.5.0
+torch>=2.0.0
+torchvision>=0.15.0
+segmentation-models-pytorch>=0.3.0
+fastapi>=0.100.0
+uvicorn>=0.22.0
