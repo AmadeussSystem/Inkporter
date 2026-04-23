@@ -24,7 +24,7 @@ try:
         warnings.simplefilter('ignore')
         model.load_state_dict(torch.load("inkporter_model_best.pth", map_location=device, weights_only=True))
     model.eval()
-    print("✓ Model successfully loaded into VRAM. Ready for 0-latency requests!")
+    print("[SUCCESS] Model successfully loaded into VRAM. Ready for 0-latency requests!")
 except Exception as e:
     print(f"CRITICAL ERROR loading model: {e}")
 
@@ -80,6 +80,28 @@ async def extract(request: Request, sensitivity: int = 50):
         y_steps = math.ceil((orig_h - TILE_SIZE) / STRIDE) + 1 if orig_h > TILE_SIZE else 1
         x_steps = math.ceil((orig_w - TILE_SIZE) / STRIDE) + 1 if orig_w > TILE_SIZE else 1
 
+        batch_tensors = []
+        batch_coords = []
+        BATCH_SIZE = 4 # Optimized for preventing VRAM OOM on 4GB cards while accelerating logic
+
+        def process_batch():
+            if not batch_tensors: return
+            batch_cat = torch.cat(batch_tensors, dim=0)
+            with torch.no_grad():
+                with torch.amp.autocast(device_type=device.type):
+                    output = model(batch_cat)
+                pred_masks = torch.sigmoid(output).squeeze(1).cpu().numpy()
+                
+            if len(batch_tensors) == 1:
+                pred_masks = [pred_masks]
+                
+            for i, (y1, x1, actual_h, actual_w) in enumerate(batch_coords):
+                mask_accumulator[y1:y1+actual_h, x1:x1+actual_w] += pred_masks[i][:actual_h, :actual_w]
+                weight_accumulator[y1:y1+actual_h, x1:x1+actual_w] += 1.0
+                
+            batch_tensors.clear()
+            batch_coords.clear()
+
         for y in range(y_steps):
             for x in range(x_steps):
                 y1 = min(y * STRIDE, orig_h - TILE_SIZE)
@@ -102,14 +124,14 @@ async def extract(request: Request, sensitivity: int = 50):
                 t_chw = t_norm.transpose(2, 0, 1)
                 tensor = torch.from_numpy(t_chw).float().unsqueeze(0).to(device)
 
-                with torch.no_grad():
-                    with torch.amp.autocast(device_type=device.type):
-                        output = model(tensor)
-                    pred_mask = torch.sigmoid(output).squeeze().cpu().numpy()
-
-                actual_h, actual_w = tile.shape[:2]
-                mask_accumulator[y1:y1+actual_h, x1:x1+actual_w] += pred_mask[:actual_h, :actual_w]
-                weight_accumulator[y1:y1+actual_h, x1:x1+actual_w] += 1.0
+                batch_tensors.append(tensor)
+                batch_coords.append((y1, x1, tile.shape[0], tile.shape[1]))
+                
+                if len(batch_tensors) >= BATCH_SIZE:
+                    process_batch()
+                    
+        # Flush remaining
+        process_batch()
 
         final_mask = mask_accumulator / np.maximum(weight_accumulator, 1.0)
         mask_blurred = cv2.GaussianBlur(final_mask, (3, 3), 0)

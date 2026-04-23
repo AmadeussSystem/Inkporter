@@ -31,6 +31,9 @@ const DEFAULT_SETTINGS: InkporterSettings = {
 // --- Plugin Class ---
 export default class Inkporter extends Plugin {
 	settings: InkporterSettings;
+    activeServerProcess: any = null;
+    serverStatus: 'STOPPED' | 'STARTING' | 'RUNNING' | 'ERROR' = 'STOPPED';
+    settingsTab: InkporterSettingsTab;
 
 	async onload() {
 		await this.loadSettings();
@@ -44,16 +47,23 @@ export default class Inkporter extends Plugin {
 			name: 'Process neural extraction from file',
 			callback: async () => { this.runImageProcessing(true); }
 		});
-        this.addCommand({
+		this.addCommand({
             id: 'inkporter-start-server',
             name: 'Start Local Neural API Server',
             callback: () => { this.startNeuralServer(); }
         });
-		this.addSettingTab(new InkporterSettingsTab(this.app, this));
+		this.settingsTab = new InkporterSettingsTab(this.app, this);
+		this.addSettingTab(this.settingsTab);
+        
+        this.registerEvent(this.app.workspace.on('quit', () => this.stopNeuralServer()));
 	}
+    
+    async onunload() {
+        this.stopNeuralServer();
+    }
 
     // --- Neural Server Launcher ---
-    private startNeuralServer() {
+    public startNeuralServer() {
         if (Platform.isMobile) {
             new Notice("Server cannot be hosted natively on iOS/Android."); return; 
         }
@@ -71,32 +81,79 @@ export default class Inkporter extends Plugin {
             }
             
             const isWin = process.platform === "win32";
-            let executable = 'uvicorn';
+            let executable = 'python';
             const venvPath = path.join(cwdPath, '.venv');
             if (fs.existsSync(venvPath)) {
-                executable = isWin ? path.join(venvPath, 'Scripts', 'uvicorn.exe') : path.join(venvPath, 'bin', 'uvicorn');
+                executable = isWin ? path.join(venvPath, 'Scripts', 'python.exe') : path.join(venvPath, 'bin', 'python');
             }
             
-            new Notice(`Inkporter: Spinning up Neural Server in ${cwdPath}...`);
-            const serverProcess = spawn(executable, ['inkporter_server:app', '--host', '0.0.0.0', '--port', '8000'], { cwd: cwdPath, detached: true });
+            if (this.activeServerProcess) {
+                new Notice("Neural API Server is already running!"); return;
+            }
             
-            serverProcess.stdout?.on('data', (data: any) => {
+            this.serverStatus = 'STARTING';
+            this.settingsTab?.display();
+            new Notice(`Inkporter: Spinning up Neural Server in ${cwdPath}...`);
+            this.activeServerProcess = spawn(executable, ['-m', 'uvicorn', 'inkporter_server:app', '--host', '0.0.0.0', '--port', '8000'], { cwd: cwdPath });
+            
+            this.activeServerProcess.stdout?.on('data', (data: any) => {
                 const msg = data.toString();
                 console.log("[Neural Core]: ", msg);
-                if (msg.includes("Application startup complete") || msg.includes("Ready for 0-latency requests")) {
+                if (msg.includes("Application startup complete") || msg.includes("Uvicorn running on")) {
+                    this.serverStatus = 'RUNNING';
+                    this.settingsTab?.display();
                     new Notice("Neural API Server Online and Ready!", 5000);
                 }
             });
-            serverProcess.stderr?.on('data', (data: any) => { console.warn("[Neural Core Warning]: ", data.toString()); });
-            serverProcess.on('error', (err: any) => { 
+            this.activeServerProcess.stderr?.on('data', (data: any) => { 
+                const msg = data.toString();
+                if (msg.includes("Application startup complete") || msg.includes("Uvicorn running on")) {
+                    console.log("[Neural Core]: ", msg);
+                    this.serverStatus = 'RUNNING';
+                    this.settingsTab?.display();
+                    new Notice("Neural API Server Online and Ready!", 5000);
+                } else {
+                    console.warn("[Neural Core Warning]: ", msg); 
+                    if (msg.toLowerCase().includes("error") || msg.toLowerCase().includes("failed") || msg.toLowerCase().includes("exception")) {
+                        this.serverStatus = 'ERROR';
+                        this.settingsTab?.display();
+                    }
+                }
+            });
+            this.activeServerProcess.on('close', (code: number) => {
+                this.activeServerProcess = null;
+                if (this.serverStatus !== 'STOPPED') this.serverStatus = 'ERROR';
+                this.settingsTab?.display();
+            });
+            this.activeServerProcess.on('error', (err: any) => { 
                 console.error(err); 
+                this.activeServerProcess = null;
+                this.serverStatus = 'ERROR';
+                this.settingsTab?.display();
                 new Notice(`Error launching server: ${err.message}`); 
             });
-            serverProcess.unref();
-
         } catch (e) {
             console.error(e);
+            this.serverStatus = 'ERROR';
+            this.settingsTab?.display();
             new Notice("Failed to launch child process. Are you in a restricted environment?");
+        }
+    }
+    
+    public stopNeuralServer() {
+        if (this.activeServerProcess) {
+            try {
+                if (process.platform === 'win32') {
+                    const { exec } = require('child_process');
+                    exec(`taskkill /pid ${this.activeServerProcess.pid} /T /F`);
+                } else {
+                    this.activeServerProcess.kill('SIGINT');
+                }
+                this.activeServerProcess = null;
+                this.serverStatus = 'STOPPED';
+                this.settingsTab?.display();
+                new Notice("Neural API Server Stopped.");
+            } catch (e) { console.error(e); }
         }
     }
 
@@ -127,8 +184,8 @@ echo ========================================================
 echo INKPORTER NEURAL ENGINE INSTALLER
 echo ========================================================
 echo.
-echo Step 1: Creating localized python environment (.venv)...
-python -m venv .venv --copies
+echo Step 1: Creating python environment (.venv) with Global inherit...
+python -m venv .venv --copies --system-site-packages
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to create .venv. 
     echo Ensure Python 3.9+ is installed and on your system PATH.
@@ -166,8 +223,8 @@ echo "========================================================"
 echo "INKPORTER NEURAL ENGINE INSTALLER"
 echo "========================================================"
 echo ""
-echo "Step 1: Creating localized python environment (.venv)..."
-python3 -m venv .venv
+echo "Step 1: Creating python environment (.venv) with Global inherit..."
+python3 -m venv .venv --system-site-packages
 if [ $? -ne 0 ]; then
     echo "[ERROR] Failed to create .venv."
     echo "Ensure Python 3.9+ is installed."
@@ -602,6 +659,46 @@ class InkporterSettingsTab extends PluginSettingTab {
         
         const donateBtn = btnDiv.createEl('button', { text: 'Support the Developer ❤️' });
         donateBtn.onclick = () => window.open('https://github.com/sponsors/AmadeussSystem', '_blank');
+        // --- Server Dashboard ---
+        const dashboardDiv = containerEl.createDiv({ cls: 'inkporter-server-dashboard' });
+        dashboardDiv.style.padding = "15px";
+        dashboardDiv.style.backgroundColor = "var(--background-secondary)";
+        dashboardDiv.style.borderRadius = "8px";
+        dashboardDiv.style.marginBottom = "20px";
+        dashboardDiv.style.border = "1px solid var(--background-modifier-border-hover)";
+        dashboardDiv.style.display = "flex";
+        dashboardDiv.style.flexDirection = "column";
+        dashboardDiv.style.gap = "10px";
+        
+        let statusColor = "var(--text-muted)";
+        let statusText = "Stopped";
+        if (this.plugin.serverStatus === 'RUNNING') { statusColor = "#00ff00"; statusText = "Online & Ready"; }
+        else if (this.plugin.serverStatus === 'STARTING') { statusColor = "#eeff00"; statusText = "Booting up..."; }
+        else if (this.plugin.serverStatus === 'ERROR') { statusColor = "#ff4444"; statusText = "Error! Check Console."; }
+        
+        const headerRow = dashboardDiv.createDiv({ attr: { style: "display: flex; justify-content: space-between; align-items: center;" }});
+        headerRow.createEl('h3', { text: '🖥️ Neural Server Dashboard', attr: { style: "margin: 0;" }});
+        
+        const badge = headerRow.createDiv({ attr: { style: `padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 13px; background: rgba(0,0,0,0.5); color: ${statusColor}; border: 1px solid ${statusColor}` }});
+        badge.innerText = `Status: ${statusText}`;
+
+        const controlDiv = dashboardDiv.createDiv({ attr: { style: "display: flex; gap: 10px; margin-top: 5px;" }});
+        
+        const startBtn = controlDiv.createEl('button', { text: '▶️ Start Backend', cls: 'mod-cta' });
+        if (this.plugin.serverStatus === 'RUNNING' || this.plugin.serverStatus === 'STARTING') startBtn.disabled = true;
+        startBtn.onclick = () => this.plugin.startNeuralServer();
+
+        const stopBtn = controlDiv.createEl('button', { text: '🛑 Stop Server' });
+        if (this.plugin.serverStatus === 'STOPPED') stopBtn.disabled = true;
+        stopBtn.onclick = () => this.plugin.stopNeuralServer();
+
+        const restartBtn = controlDiv.createEl('button', { text: '🔄 Restart' });
+        if (this.plugin.serverStatus === 'STOPPED') restartBtn.disabled = true;
+        restartBtn.onclick = () => { 
+            this.plugin.stopNeuralServer(); 
+            new Notice("Rebooting Server...");
+            setTimeout(() => { this.plugin.startNeuralServer(); }, 1500); 
+        };
 
 		containerEl.createEl('h3', { text: 'API Server Endpoint' });
 		new Setting(containerEl)
