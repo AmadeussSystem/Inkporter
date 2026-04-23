@@ -170,7 +170,7 @@ export default class Inkporter extends Plugin {
         
         const engineDir = path.join(basePath, this.manifest.dir, 'engine');
         if (!fs.existsSync(engineDir)) {
-            new Notice("Error: Could not find 'engine' directory bundled with this plugin!"); return;
+            fs.mkdirSync(engineDir, { recursive: true });
         }
 
         const isWin = process.platform === "win32";
@@ -184,7 +184,17 @@ echo ========================================================
 echo INKPORTER NEURAL ENGINE INSTALLER
 echo ========================================================
 echo.
-echo Step 1: Creating python environment (.venv) with Global inherit...
+echo Step 1: Downloading Neural Framework from GitHub...
+curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_server.py
+curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/requirements.txt
+curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_model_best.pth
+if %errorlevel% neq 0 (
+    echo [ERROR] Failed to download neural binaries from GitHub.
+    pause
+    exit /b %errorlevel%
+)
+echo.
+echo Step 2: Creating python environment (.venv) with Global inherit...
 python -m venv .venv --copies --system-site-packages
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to create .venv. 
@@ -223,7 +233,17 @@ echo "========================================================"
 echo "INKPORTER NEURAL ENGINE INSTALLER"
 echo "========================================================"
 echo ""
-echo "Step 1: Creating python environment (.venv) with Global inherit..."
+echo "Step 1: Downloading Neural Framework from GitHub..."
+curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_server.py
+curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/requirements.txt
+curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_model_best.pth
+if [ $? -ne 0 ]; then
+    echo "[ERROR] Failed to download neural binaries."
+    read -p "Press Enter to close..."
+    exit 1
+fi
+echo ""
+echo "Step 2: Creating python environment (.venv) with Global inherit..."
 python3 -m venv .venv --system-site-packages
 if [ $? -ne 0 ]; then
     echo "[ERROR] Failed to create .venv."
