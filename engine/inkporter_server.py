@@ -88,7 +88,10 @@ async def extract(request: Request, sensitivity: int = 50):
             if not batch_tensors: return
             batch_cat = torch.cat(batch_tensors, dim=0)
             with torch.no_grad():
-                with torch.amp.autocast(device_type=device.type):
+                if device.type == 'cuda':
+                    with torch.amp.autocast(device_type='cuda'):
+                        output = model(batch_cat)
+                else:
                     output = model(batch_cat)
                 pred_masks = torch.sigmoid(output).squeeze(1).cpu().numpy()
                 

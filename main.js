@@ -9,9 +9,9 @@ echo INKPORTER NEURAL ENGINE INSTALLER
 echo ========================================================
 echo.
 echo Step 1: Downloading Neural Framework from GitHub...
-curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_server.py
-curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/requirements.txt
-curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_model_best.pth
+if not exist inkporter_server.py curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_server.py
+if not exist requirements.txt curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/requirements.txt
+if not exist inkporter_model_best.pth curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_model_best.pth
 if %errorlevel% neq 0 (
     echo [ERROR] Failed to download neural binaries from GitHub.
     pause
@@ -19,12 +19,16 @@ if %errorlevel% neq 0 (
 )
 echo.
 echo Step 2: Creating python environment (.venv) with Global inherit...
-python -m venv .venv --copies --system-site-packages
-if %errorlevel% neq 0 (
-    echo [ERROR] Failed to create .venv. 
-    echo Ensure Python 3.9+ is installed and on your system PATH.
-    pause
-    exit /b %errorlevel%
+if not exist .venv (
+    python -m venv .venv --copies --system-site-packages
+    if %errorlevel% neq 0 (
+        echo [ERROR] Failed to create .venv. 
+        echo Ensure Python 3.9+ is installed and on your system PATH.
+        pause
+        exit /b %errorlevel%
+    )
+) else (
+    echo [.venv already exists, skipping creation...]
 )
 echo.
 echo Step 2: Downloading PyTorch and API Dependencies...
@@ -52,9 +56,9 @@ echo "INKPORTER NEURAL ENGINE INSTALLER"
 echo "========================================================"
 echo ""
 echo "Step 1: Downloading Neural Framework from GitHub..."
-curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_server.py
-curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/requirements.txt
-curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_model_best.pth
+if [ ! -f "inkporter_server.py" ]; then curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_server.py; fi
+if [ ! -f "requirements.txt" ]; then curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/requirements.txt; fi
+if [ ! -f "inkporter_model_best.pth" ]; then curl -L -O https://raw.githubusercontent.com/AmadeussSystem/Inkporter/master/engine/inkporter_model_best.pth; fi
 if [ $? -ne 0 ]; then
     echo "[ERROR] Failed to download neural binaries."
     read -p "Press Enter to close..."
@@ -62,12 +66,16 @@ if [ $? -ne 0 ]; then
 fi
 echo ""
 echo "Step 2: Creating python environment (.venv) with Global inherit..."
-python3 -m venv .venv --system-site-packages
-if [ $? -ne 0 ]; then
-    echo "[ERROR] Failed to create .venv."
-    echo "Ensure Python 3.9+ is installed."
-    read -p "Press Enter to close..."
-    exit 1
+if [ ! -d ".venv" ]; then
+    python3 -m venv .venv --system-site-packages
+    if [ $? -ne 0 ]; then
+        echo "[ERROR] Failed to create .venv."
+        echo "Ensure Python 3.9+ is installed."
+        read -p "Press Enter to close..."
+        exit 1
+    fi
+else
+    echo "[.venv already exists, skipping creation...]"
 fi
 echo ""
 echo "Step 2: Downloading PyTorch and API Dependencies..."
