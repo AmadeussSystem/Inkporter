@@ -37,20 +37,20 @@ export default class Inkporter extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-        const ribbonIconEl = this.addRibbonIcon('scissors', 'Inkporter: Extract Image', (evt: MouseEvent) => {
-			this.runImageProcessing(false);
+        const ribbonIconEl = this.addRibbonIcon('scissors', 'Inkporter: Extract Image from File', (evt: MouseEvent) => {
+			this.runImageProcessing(true);
 		});
 		ribbonIconEl.addClass('inkporter-ribbon-class');
 
 		this.addCommand({
 			id: 'inkporter',
 			name: Platform.isMobile ? 'Process image from file/clipboard' : 'Process neural extraction from clipboard',
-            hotkeys: [{ modifiers: ["Mod", "Shift"], key: "I" }],
 			callback: async () => { this.runImageProcessing(false); }
 		});
 		this.addCommand({
 			id: 'inkporter-file-picker',
 			name: 'Process neural extraction from file',
+            hotkeys: [{ modifiers: ["Mod", "Alt"], key: "I" }],
 			callback: async () => { this.runImageProcessing(true); }
 		});
 		this.addCommand({
