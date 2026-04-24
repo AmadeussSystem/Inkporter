@@ -357,7 +357,11 @@ read -p "Press Enter to close..."
 			const f = (e.target as HTMLInputElement).files?.[0];
 			if (!f) { new Notice('No file selected.'); i.remove(); return; }
 			try {
-				const b = await this.readFileAsArrayBuffer(f);
+				const hw = this.settings.targetHardware;
+                const msg = hw === 'cpu' ? "Extracting Ink... (This may take 3-5 seconds on CPU)" : "Extracting Ink... (Hardware Accelerated)";
+                new Notice(msg, 4000);
+                
+                const b = await this.readFileAsArrayBuffer(f);
 				const p = await this.processImage(b, f.name);
 				if (p) { this.showPreviewAndSave(p); }
 				else { new Notice('Inkporter: Neural Processing failed.'); }
@@ -387,7 +391,9 @@ read -p "Press Enter to close..."
 						try {
 							const blob = await item.getType(type);
 							const hint = type.split('/')[1] || 'png';
-                            new Notice("Extracting Ink... (This may take 3-5 seconds on CPU)", 4000);
+							const hw = this.settings.targetHardware;
+                            const msg = hw === 'cpu' ? "Extracting Ink... (This may take 3-5 seconds on CPU)" : "Extracting Ink... (Hardware Accelerated)";
+                            new Notice(msg, 4000);
 							const res = await this.processImage(await blob.arrayBuffer(), `clipboard-image.${hint}`);
 							if (!res) new Notice('Inkporter: API fetch failed.');
 							return res;
