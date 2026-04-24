@@ -293,9 +293,17 @@ read -p "Press Enter to close..."
         };
 
         if (target === 'nvidia' || target === 'auto') {
-            exec('nvidia-smi', (smiErr: any) => {
+            exec('nvidia-smi', (smiErr: any, stdout: string) => {
                 if (!smiErr) {
-                    launchNativeTerminal("--index-url https://download.pytorch.org/whl/cu121");
+                    let torchArgs = "--index-url https://download.pytorch.org/whl/cu121";
+                    const match = stdout.match(/CUDA Version:\s*(\d+\.\d+)/);
+                    if (match && match[1]) {
+                        const ver = parseFloat(match[1]);
+                        if (ver < 12.1) {
+                            torchArgs = "--index-url https://download.pytorch.org/whl/cu118";
+                        }
+                    }
+                    launchNativeTerminal(torchArgs);
                 } else if (target === 'auto' && process.platform === 'darwin') {
                     launchNativeTerminal("");
                 } else {
