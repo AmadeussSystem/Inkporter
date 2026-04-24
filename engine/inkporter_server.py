@@ -163,15 +163,21 @@ async def extract(request: Request, sensitivity: int = 50):
                 
             mask_clean[component_mask] = 1
 
+        # Preserve soft anti-aliased edges by dilating the geometric boundary
+        mask_clean = cv2.dilate(mask_clean, np.ones((5,5), np.uint8), iterations=1)
+        
+        # Solidify translucent ink peaks via contrast boosting
+        enhanced_mask = np.clip((final_mask ** 0.7) * 1.5, 0, 1.0)
+
         # Render
-        smooth_alpha = (final_mask * mask_clean)
+        smooth_alpha = (enhanced_mask * mask_clean)
         alpha_channel = (smooth_alpha * 255).astype(np.uint8)
         vector_rgb = np.zeros_like(img)
         result = np.dstack([vector_rgb, alpha_channel])
 
         h, w = result.shape[:2]
-        if max(h, w) > 2500:
-            scale = 2500 / max(h, w)
+        if max(h, w) > 4000:
+            scale = 4000 / max(h, w)
             result = cv2.resize(result, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
 
         _, encoded_img = cv2.imencode('.png', result)
