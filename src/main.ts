@@ -207,7 +207,12 @@ if not exist .venv (
     echo [.venv already exists, skipping creation...]
 )
 echo.
+echo [Diagnostics]
+call .venv\\Scripts\\python.exe -c "import sys; print('Python Version:', sys.version)"
+call .venv\\Scripts\\python.exe -c "import struct; print('Architecture:', struct.calcsize('P') * 8, 'bit')"
+echo.
 echo Step 2: Downloading PyTorch and API Dependencies...
+call .venv\\Scripts\\python.exe -m pip install --upgrade pip
 call .venv\\Scripts\\pip install torch torchvision torchaudio ${torchArgs}
 if %errorlevel% neq 0 (
     echo [ERROR] PyTorch installation failed.
@@ -260,8 +265,13 @@ else
     echo "[.venv already exists, skipping creation...]"
 fi
 echo ""
+echo "[Diagnostics]"
+.venv/bin/python -c "import sys; print('Python Version:', sys.version)"
+.venv/bin/python -c "import struct; print('Architecture:', struct.calcsize('P') * 8, 'bit')"
+echo ""
 echo "Step 2: Downloading PyTorch and API Dependencies..."
 source .venv/bin/activate
+pip install --upgrade pip
 pip install torch torchvision torchaudio ${torchArgs}
 if [ $? -ne 0 ]; then
     echo "[ERROR] PyTorch installation failed."
@@ -295,12 +305,12 @@ read -p "Press Enter to close..."
         if (target === 'nvidia' || target === 'auto') {
             exec('nvidia-smi', (smiErr: any, stdout: string) => {
                 if (!smiErr) {
-                    let torchArgs = "--index-url https://download.pytorch.org/whl/cu121";
+                    let torchArgs = "--extra-index-url https://download.pytorch.org/whl/cu121";
                     const match = stdout.match(/CUDA Version:\s*(\d+\.\d+)/);
                     if (match && match[1]) {
                         const ver = parseFloat(match[1]);
                         if (ver < 12.1) {
-                            torchArgs = "--index-url https://download.pytorch.org/whl/cu118";
+                            torchArgs = "--extra-index-url https://download.pytorch.org/whl/cu118";
                         }
                     }
                     launchNativeTerminal(torchArgs);
@@ -308,9 +318,9 @@ read -p "Press Enter to close..."
                     launchNativeTerminal("");
                 } else {
                     if (target === 'nvidia') {
-                        launchNativeTerminal("--index-url https://download.pytorch.org/whl/cu121");
+                        launchNativeTerminal("--extra-index-url https://download.pytorch.org/whl/cu121");
                     } else {
-                        launchNativeTerminal("--index-url https://download.pytorch.org/whl/cpu");
+                        launchNativeTerminal("--extra-index-url https://download.pytorch.org/whl/cpu");
                     }
                 }
             });
@@ -371,6 +381,7 @@ read -p "Press Enter to close..."
 						try {
 							const blob = await item.getType(type);
 							const hint = type.split('/')[1] || 'png';
+                            new Notice("Extracting Ink... (This may take 3-5 seconds on CPU)", 4000);
 							const res = await this.processImage(await blob.arrayBuffer(), `clipboard-image.${hint}`);
 							if (!res) new Notice('Inkporter: API fetch failed.');
 							return res;
