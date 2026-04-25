@@ -163,25 +163,22 @@ async def extract(request: Request, sensitivity: int = 50):
                 
             mask_clean[component_mask] = 1
 
-        # --- HYBRID NEURAL-ADAPTIVE STENCIL ---
-        # 1. Extract raw physical sharpness from the original photo using adaptive thresholding
+        # HYBRID NEURAL-ADAPTIVE EXTRACTION
+        
+        # 1. Extract pixel-perfect physical ink edges from original image
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        block_size = max(31, (min(orig_h, orig_w) // 80) | 1) # Dynamic block size
-        if block_size % 2 == 0: block_size += 1
-        sharp_ink_mask = cv2.adaptiveThreshold(img_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, block_size, 15)
-
-        # 2. Use the U-Net as a Semantic Stencil to erase all non-ink shadows from the sharp mask
-        # We dilate the neural mask generously to ensure we don't accidentally clip the physical edges of the pen stroke
-        stencil = cv2.dilate(mask_clean, np.ones((9,9), np.uint8), iterations=2)
-        stencil = stencil * 255
+        block_size = max(21, (min(orig_h, orig_w) // 100) | 1)
+        sharp_ink_mask = cv2.adaptiveThreshold(img_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, block_size, 10)
         
-        # 3. Fuse them: Bitwise AND intersection
-        raw_alpha = cv2.bitwise_and(sharp_ink_mask, sharp_ink_mask, mask=stencil)
+        # 2. Use the neural U-Net strictly as a spatial stencil to erase background artifacts
+        stencil = cv2.dilate(mask_clean, np.ones((7,7), np.uint8), iterations=1)
         
-        # 4. Anti-alias the harsh binary edges of the adaptive threshold to make it look organic
-        alpha_channel = cv2.GaussianBlur(raw_alpha, (3,3), 0)
+        # 3. Fuse them: Only keep razor-sharp math edges that the Neural Network structurally approved
+        hybrid_alpha = cv2.bitwise_and(sharp_ink_mask, sharp_ink_mask, mask=stencil)
+        
+        # 4. Smooth out harsh digital aliasing on the new crisp edges
+        alpha_channel = cv2.GaussianBlur(hybrid_alpha, (3,3), 0)
 
-        # 5. Render to transparent PNG (Extract pure black ink)
         vector_rgb = np.zeros_like(img)
         result = np.dstack([vector_rgb, alpha_channel])
 
