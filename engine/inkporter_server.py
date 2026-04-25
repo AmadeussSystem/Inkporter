@@ -163,28 +163,15 @@ async def extract(request: Request, sensitivity: int = 50):
                 
             mask_clean[component_mask] = 1
 
-        # HYBRID NEURAL-ADAPTIVE EXTRACTION
-        
-        # 1. Extract pixel-perfect physical ink edges from original image
-        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        block_size = max(21, (min(orig_h, orig_w) // 100) | 1)
-        sharp_ink_mask = cv2.adaptiveThreshold(img_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, block_size, 10)
-        
-        # 2. Use the neural U-Net strictly as a spatial stencil to erase background artifacts
-        stencil = cv2.dilate(mask_clean, np.ones((7,7), np.uint8), iterations=1)
-        
-        # 3. Fuse them: Only keep razor-sharp math edges that the Neural Network structurally approved
-        hybrid_alpha = cv2.bitwise_and(sharp_ink_mask, sharp_ink_mask, mask=stencil)
-        
-        # 4. Smooth out harsh digital aliasing on the new crisp edges
-        alpha_channel = cv2.GaussianBlur(hybrid_alpha, (3,3), 0)
-
+        # Render
+        smooth_alpha = (final_mask * mask_clean)
+        alpha_channel = (smooth_alpha * 255).astype(np.uint8)
         vector_rgb = np.zeros_like(img)
         result = np.dstack([vector_rgb, alpha_channel])
 
         h, w = result.shape[:2]
-        if max(h, w) > 4000:
-            scale = 4000 / max(h, w)
+        if max(h, w) > 2500:
+            scale = 2500 / max(h, w)
             result = cv2.resize(result, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
 
         _, encoded_img = cv2.imencode('.png', result)
